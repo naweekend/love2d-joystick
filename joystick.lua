@@ -12,6 +12,7 @@ function Joystick.init()
     Joystick.handleRadius = 35
 
     Joystick.isSelected = false
+    Joystick.activeTouchId = nil
 end
 
 function Joystick.draw()
@@ -28,38 +29,22 @@ function Joystick.draw()
     love.graphics.circle("line", Joystick.handleX, Joystick.handleY, Joystick.handleRadius)
 end
 
-function love.mousepressed(x, y, button, istouch)
-    if button == 1 then
-        if DistanceTo(x, y, Joystick.baseX, Joystick.baseY) < Joystick.baseRadius then
-            Joystick.isSelected = true
-            print("Joystick selected")
-        end
+function love.touchpressed(id, x, y, dx, dy)
+    if id then Joystick.activeTouchId = id end
+    if DistanceTo(x, y, Joystick.baseX, Joystick.baseY) < Joystick.baseRadius then
+        Joystick.isSelected = true
+        print("Joystick selected")
     end
 end
 
--- function love.mousemoved(x, y, dx, dy, istouch)
---     if Joystick.isSelected then
---         Joystick.handleX = x
---         Joystick.handleY = y
+function love.mousepressed(x, y, button, istouch)
+    if button == 1 then
+        love.touchpressed("mouse", x, y)
+    end
+end
 
---         if DistanceTo(x, y, Joystick.baseX, Joystick.baseY) > Joystick.baseRadius then
---             if x > Joystick.baseX then
---                 local angleOfFinger = math.atan((y - Joystick.baseY) / (x - Joystick.baseX))
-
---                 Joystick.handleX = Joystick.baseX + Joystick.baseRadius * math.cos(angleOfFinger)
---                 Joystick.handleY = Joystick.baseY + Joystick.baseRadius * math.sin(angleOfFinger)
---             else
---                 local angleOfFinger = math.atan((y - Joystick.baseY) / (x - Joystick.baseX))
-
---                 Joystick.handleX = Joystick.baseX + Joystick.baseRadius * math.cos(angleOfFinger) * -1
---                 Joystick.handleY = Joystick.baseY + Joystick.baseRadius * math.sin(angleOfFinger) * -1
---             end
---         end
---     end
--- end
-
-function love.mousemoved(x, y, dx, dy, istouch)
-    if Joystick.isSelected then
+function love.touchmoved(id, x, y, dx, dy)
+    if Joystick.isSelected and Joystick.activeTouchId and Joystick.activeTouchId == id then
         local distX = x - Joystick.baseX
         local distY = y - Joystick.baseY
         print(Joystick.getVector())
@@ -75,14 +60,23 @@ function love.mousemoved(x, y, dx, dy, istouch)
     end
 end
 
+function love.mousemoved(x, y, dx, dy, istouch)
+    love.touchmoved("mouse", x, y, dx, dy)
+end
+
+function love.touchreleased(id, x, y, dx, dy)
+    if Joystick.isSelected and Joystick.activeTouchId and Joystick.activeTouchId == id then
+        Joystick.isSelected = false
+        Joystick.activeTouchId = nil
+        Joystick.handleX = Joystick.baseX
+        Joystick.handleY = Joystick.baseY
+        print("Joystick released")
+    end
+end
+
 function love.mousereleased(x, y, button, istouch)
     if button == 1 then
-        if Joystick.isSelected then
-            Joystick.isSelected = false
-            Joystick.handleX = Joystick.baseX
-            Joystick.handleY = Joystick.baseY
-            print("Joystick released")
-        end
+        love.touchreleased("mouse", x, y)
     end
 end
 
@@ -94,12 +88,19 @@ function Joystick.getVector()
     local vx = dx / Joystick.baseRadius
     local vy = dy / Joystick.baseRadius
 
+
     local deadzone = 0.15
     if math.abs(vx) < deadzone then
         vx = 0
     end
     if math.abs(vy) < deadzone then
         vy = 0
+    end
+
+    local magnitude = math.sqrt(vx ^ 2 + vy ^ 2)
+
+    if magnitude > 1 then
+        vx, vy = vx / magnitude, vy / magnitude
     end
 
     return vx, vy
