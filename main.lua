@@ -2,7 +2,7 @@ local joystick = require("joystick")
 
 function love.load()
     joystick.init({
-        mobileOnly = true
+        -- mobileOnly = true
     })
 end
 

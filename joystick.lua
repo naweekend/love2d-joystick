@@ -37,17 +37,19 @@ end
 function Joystick.touchpressed(id, x, y, dx, dy)
     if Joystick.options.mobileOnly and Joystick.isDesktop then return end
 
-    if id then Joystick.activeTouchId = id end
     if DistanceTo(x, y, Joystick.baseX, Joystick.baseY) < Joystick.baseRadius then
-        Joystick.isSelected = true
+        if not Joystick.activeTouchId then
+            if id then Joystick.activeTouchId = id end
+            Joystick.isSelected = true
+        end
     end
 end
 
 function Joystick.mousepressed(x, y, button, istouch)
-    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+    if not Joystick.isDesktop then return end
 
     if button == 1 then
-        love.touchpressed("mouse", x, y)
+        Joystick.touchpressed("mouse", x, y)
     end
 end
 
@@ -70,9 +72,9 @@ function Joystick.touchmoved(id, x, y, dx, dy)
 end
 
 function Joystick.mousemoved(x, y, dx, dy, istouch)
-    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+    if not Joystick.isDesktop then return end
 
-    love.touchmoved("mouse", x, y, dx, dy)
+    Joystick.touchmoved("mouse", x, y, dx, dy)
 end
 
 function Joystick.touchreleased(id, x, y, dx, dy)
@@ -87,10 +89,10 @@ function Joystick.touchreleased(id, x, y, dx, dy)
 end
 
 function Joystick.mousereleased(x, y, button, istouch)
-    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+    if not Joystick.isDesktop then return end
 
     if button == 1 then
-        love.touchreleased("mouse", x, y)
+        Joystick.touchreleased("mouse", x, y)
     end
 end
 
