@@ -1,21 +1,26 @@
 Joystick = {}
 
-function Joystick.init()
+function Joystick.init(options)
+    Joystick.options = options or {}
+    Joystick.isDesktop = love.system and love.system.getOS() ~= "Android" and love.system.getOS() ~= "iOS"
+
     -- base
-    Joystick.baseX = love.graphics.getWidth() / 2
-    Joystick.baseY = love.graphics.getHeight() / 2
-    Joystick.baseRadius = 80
+    Joystick.baseX = Joystick.options.x or 150
+    Joystick.baseY = Joystick.options.y or love.graphics.getHeight() - 150
+    Joystick.baseRadius = Joystick.options.baseRadius or 100
 
     -- handle
-    Joystick.handleX = love.graphics.getWidth() / 2
-    Joystick.handleY = love.graphics.getHeight() / 2
-    Joystick.handleRadius = 35
+    Joystick.handleX = Joystick.options.x or 150
+    Joystick.handleY = Joystick.options.y or love.graphics.getHeight() - 150
+    Joystick.handleRadius = Joystick.options.handleRadius or 45
 
     Joystick.isSelected = false
     Joystick.activeTouchId = nil
 end
 
 function Joystick.draw()
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     -- draw the base and its outline
     SetColor(255, 255, 255, 0.3)
     love.graphics.circle("fill", Joystick.baseX, Joystick.baseY, Joystick.baseRadius)
@@ -29,25 +34,29 @@ function Joystick.draw()
     love.graphics.circle("line", Joystick.handleX, Joystick.handleY, Joystick.handleRadius)
 end
 
-function love.touchpressed(id, x, y, dx, dy)
+function Joystick.touchpressed(id, x, y, dx, dy)
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     if id then Joystick.activeTouchId = id end
     if DistanceTo(x, y, Joystick.baseX, Joystick.baseY) < Joystick.baseRadius then
         Joystick.isSelected = true
-        print("Joystick selected")
     end
 end
 
-function love.mousepressed(x, y, button, istouch)
+function Joystick.mousepressed(x, y, button, istouch)
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     if button == 1 then
         love.touchpressed("mouse", x, y)
     end
 end
 
-function love.touchmoved(id, x, y, dx, dy)
+function Joystick.touchmoved(id, x, y, dx, dy)
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     if Joystick.isSelected and Joystick.activeTouchId and Joystick.activeTouchId == id then
         local distX = x - Joystick.baseX
         local distY = y - Joystick.baseY
-        print(Joystick.getVector())
 
         if DistanceTo(x, y, Joystick.baseX, Joystick.baseY) <= Joystick.baseRadius then
             Joystick.handleX = x
@@ -60,27 +69,34 @@ function love.touchmoved(id, x, y, dx, dy)
     end
 end
 
-function love.mousemoved(x, y, dx, dy, istouch)
+function Joystick.mousemoved(x, y, dx, dy, istouch)
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     love.touchmoved("mouse", x, y, dx, dy)
 end
 
-function love.touchreleased(id, x, y, dx, dy)
+function Joystick.touchreleased(id, x, y, dx, dy)
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     if Joystick.isSelected and Joystick.activeTouchId and Joystick.activeTouchId == id then
         Joystick.isSelected = false
         Joystick.activeTouchId = nil
         Joystick.handleX = Joystick.baseX
         Joystick.handleY = Joystick.baseY
-        print("Joystick released")
     end
 end
 
-function love.mousereleased(x, y, button, istouch)
+function Joystick.mousereleased(x, y, button, istouch)
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     if button == 1 then
         love.touchreleased("mouse", x, y)
     end
 end
 
 function Joystick.getVector()
+    if Joystick.options.mobileOnly and Joystick.isDesktop then return end
+
     local dx = Joystick.handleX - Joystick.baseX
     local dy = Joystick.handleY - Joystick.baseY
 
