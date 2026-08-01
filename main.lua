@@ -2,7 +2,17 @@ local joystick = require("joystick")
 
 function love.load()
     joystick.init({
-        -- mobileOnly = true
+        mobileOnly = true,
+        baseX = 150,
+        baseY = love.graphics.getHeight() - 150,
+        baseRadius = 100,
+        handleX = 150,
+        handleY = love.graphics.getHeight() - 150,
+        handleRadius = 45,
+        baseColor = { 255, 255, 255, 0.3 },
+        baseOutlineColor = { 100, 100, 100, 0.4 }, -- {r, g, b, a}
+        handleColor = { 255, 255, 255, 0.3 },
+        handleOutlineColor = { 100, 100, 100, 0.6 },
     })
 end
 

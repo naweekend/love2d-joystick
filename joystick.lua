@@ -14,6 +14,12 @@ function Joystick.init(options)
     Joystick.handleY = Joystick.options.y or love.graphics.getHeight() - 150
     Joystick.handleRadius = Joystick.options.handleRadius or 45
 
+    -- colors
+    Joystick.baseColor = Joystick.options.baseColor or { 255, 255, 255, 0.3 }
+    Joystick.baseOutlineColor = Joystick.options.baseOutlineColor or { 100, 100, 100, 0.4 }
+    Joystick.handleColor = Joystick.options.handleColor or { 255, 255, 255, 0.3 }
+    Joystick.handleOutlineColor = Joystick.options.handleOutlineColor or { 100, 100, 100, 0.6 }
+
     Joystick.isSelected = false
     Joystick.activeTouchId = nil
 end
@@ -22,15 +28,15 @@ function Joystick.draw()
     if Joystick.options.mobileOnly and Joystick.isDesktop then return end
 
     -- draw the base and its outline
-    SetColor(255, 255, 255, 0.3)
+    SetColor(Joystick.baseColor)
     love.graphics.circle("fill", Joystick.baseX, Joystick.baseY, Joystick.baseRadius)
-    SetColor(0, 0, 0, 0.2)
+    SetColor(Joystick.baseOutlineColor)
     love.graphics.circle("line", Joystick.baseX, Joystick.baseY, Joystick.baseRadius)
 
     -- draw the handle and its outline
-    SetColor(255, 255, 255, 0.6)
+    SetColor(Joystick.handleColor)
     love.graphics.circle("fill", Joystick.handleX, Joystick.handleY, Joystick.handleRadius)
-    SetColor(0, 0, 0, 0.3)
+    SetColor(Joystick.handleOutlineColor)
     love.graphics.circle("line", Joystick.handleX, Joystick.handleY, Joystick.handleRadius)
 end
 
@@ -125,8 +131,8 @@ function Joystick.getVector()
 end
 
 -- helper functions
-function SetColor(r, g, b, a)
-    love.graphics.setColor(r / 255, g / 255, b / 255, a)
+function SetColor(colorAsTable)
+    love.graphics.setColor(colorAsTable[1] / 255, colorAsTable[2] / 255, colorAsTable[3] / 255, colorAsTable[4] or 1)
 end
 
 function DistanceTo(x1, y1, x2, y2)
